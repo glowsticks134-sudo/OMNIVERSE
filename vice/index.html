@@ -101,7 +101,7 @@ for(const x of [-1.13,1.13])for(const z of [-1.35,1.35]){const wheel=new THREE.M
 car.position.set(5,0,10);car.rotation.y=Math.PI;
 const traffic=[];
 for(let i=0;i<8;i++){const v=new THREE.Group();const c=new THREE.Mesh(new THREE.BoxGeometry(1.8,.65,3.5),mat([0x4476a6,0xe4d7a4,0x5d9b79,0x777d87][i%4]));c.position.y=.6;v.add(c);v.position.set(-180+i*47,0,-48);scene.add(v);traffic.push(v)}
-const keys={};let driving=false,camMode=0,started=false,yaw=0,pitch=.12,speed=0,steer=0,lastX=null,lastY=null;
+const keys={};let driving=false,camMode=0,started=false,yaw=Math.PI,pitch=.12,speed=0,steer=0,lastX=null,lastY=null;
 const status=document.querySelector('#status'),hint=document.querySelector('#hint'),mission=document.querySelector('#mission');
 function toggleCar(){if(!started)return;if(!driving&&player.position.distanceTo(car.position)<5){driving=true;player.visible=false;mission.innerHTML='<b>FREE ROAM · VEHICLE</b><span>Drive around the city. Press E to get out.</span>'}else if(driving){driving=false;player.visible=true;player.position.copy(car.position).add(new THREE.Vector3(2,0,0));speed=0;mission.innerHTML='<b>FREE ROAM</b><span>Explore the city. Find another place to visit.</span>'}}
 function toggleCamera(){camMode=(camMode+1)%2;document.querySelector('#camera').textContent=camMode?'CAMERA · FIRST':'CAMERA · THIRD'}
@@ -132,8 +132,8 @@ function update(dt){
  const target=driving?car:player;
  const focus=target.position.clone().add(new THREE.Vector3(0,driving?1.1:1.4,0));
  const dist=camMode===0?(driving?10:7):.12;
- const angle=yaw+(driving?car.rotation.y:0);
- const offset=new THREE.Vector3(Math.sin(angle)*dist,camMode===0?3.2:1.65,Math.cos(angle)*dist);
+ const angle=driving?car.rotation.y:yaw;
+ const offset=new THREE.Vector3(-Math.sin(angle)*dist,camMode===0?3.2:1.65,-Math.cos(angle)*dist);
  if(camMode===1){const fwd=new THREE.Vector3(Math.sin(angle),0,Math.cos(angle));camera.position.copy(focus).add(fwd.multiplyScalar(-.12));camera.position.y=focus.y;camera.lookAt(focus.clone().add(new THREE.Vector3(Math.sin(angle),Math.sin(pitch),Math.cos(angle)).multiplyScalar(10)))}
  else{camera.position.lerp(focus.clone().add(offset),Math.min(1,dt*5));camera.lookAt(focus)}
  status.textContent=(driving?'DRIVING':'ON FOOT')+' · DAY 01 · 08:30'+(driving?' · '+Math.round(Math.abs(speed)*3.6)+' KM/H':'');
